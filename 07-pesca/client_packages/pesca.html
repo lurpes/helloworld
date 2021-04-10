@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="es">
+	<head>
+		<title></title>
+		<meta charset="utf-8">
+	</head>
+	<body id="cuerpo">
+		<div class="fondo_pantalla"></div>
+		<div id="fondo_barra">
+			<div id="progreso_barra" style="width: 0%;">
+			</div>
+		</div>
+		<div id="info" unselectable="on" onselectstart="return false;" onmousedown="return false;">
+			<h1>¡Pulsa la tecla [<i>Espacio</i>] todo lo rápido que puedas!</h1>
+			<h3>Llena la barra antes de que se acabe el tiempo para conseguir pescar el pez.</h3>
+		</div>
+		<div id="temporizador" unselectable="on" onselectstart="return false;" onmousedown="return false;">
+			<p id="temporizador-texto">15</p>
+		</div>
+	</body>
+</html>
+<script>
+	var contenedor = document.getElementsByTagName("html")[0];
+	var barra = document.getElementById("progreso_barra");
+
+	var diferencia = 3;
+	var leer_pulsacion = true;
+	contenedor.onkeypress = (e) => {
+		if (e.which == 32) {
+			if (leer_pulsacion) {
+				leer_pulsacion = false;
+				let width = barra.style.width.split("%")[0];
+				if (width < 100) {
+					if (parseInt(width) + diferencia < 100)
+						barra.style.width = parseInt(width)+diferencia + "%";
+					else {
+						barra.style.width = "100%";
+						mp.trigger("pesca:cazar");
+					}
+				} else if (width >= 100) {
+					mp.trigger("pesca:cazar");
+				}
+			}
+		}
+	}
+
+	contenedor.onkeyup = (e) => {
+		if (e.which == 32) {
+			leer_pulsacion = true;
+		}
+	};
+
+	window.onload = () => {
+		let tiempo_temp = 7;
+		
+		let texto = document.getElementById("temporizador-texto");
+		texto.innerHTML = tiempo_temp;
+		let intervalo = setInterval(() => {
+			tiempo_temp--;
+			texto.innerHTML = tiempo_temp;
+
+			if (tiempo_temp <= 0) {
+				clearInterval(intervalo);
+				mp.trigger("pesca:fallida");
+			}
+		}, 1000);
+	}
+</script>
+<style>
+html {
+    height: 100%;
+    overflow: hidden;
+    width: 100%;
+    font-family: Segoe UI;
+    font-weight: 100;
+    -moz-user-select: none; -webkit-user-select: none; -ms-user-select:none; user-select:none;-o-user-select:none;
+}
+
+div#fondo_barra {
+    position: absolute;
+    width: 70vw;
+    left: 13vw;
+    top: 10vw;
+    background-color: gray;
+}
+
+div#progreso_barra {
+    height: 30px;
+    background-color: lightgreen;
+}
+
+div#info {
+    position: relative;
+    text-align: center;
+    top: 17vw;
+    color: white;
+}
+
+div#temporizador {
+    position: relative;
+    text-align: center;
+    font-size: 7vw;
+    top: 20vw;
+    color: white;
+}
+
+.fondo_pantalla {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-color: black;
+    opacity: 0.3;
+    z-index: -1;
+}
+</style>
